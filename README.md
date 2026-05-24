@@ -2,6 +2,8 @@
 
 Transforme seu Android em um desktop Linux completo usando Termux + Termux-X11 com um script modular, interativo e biligue (PT-BR / EN).
 
+![Menu Principal do Termux Linux-Android Suite](screenshots/menu.jpg)
+
 > **Creditos**: Este projeto e um fork do repositorio de [giovn-aguiar](https://github.com/giovn-aguiar/linux-android), que por sua vez e um fork do projeto original de [Lucas Aguiar](https://github.com/lucasaguiar-la/linux-android). Esta versao estende o conceito original para uma suite modular completa.
 
 ---

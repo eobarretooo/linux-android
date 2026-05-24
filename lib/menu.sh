@@ -5,6 +5,43 @@
 # =========================
 # Helpers de desenho de menu
 # =========================
+_emoji_offset() {
+    local str="$1"
+    local len_before="${#str}"
+    local clean="${str}"
+    # Substituir emojis de 1 caractere em Bash por nada
+    clean="${clean//⚡/}"
+    clean="${clean//🚀/}"
+    clean="${clean//📦/}"
+    clean="${clean//🎮/}"
+    clean="${clean//🔊/}"
+    clean="${clean//🍷/}"
+    clean="${clean//🎨/}"
+    clean="${clean//🔧/}"
+    clean="${clean//💾/}"
+    clean="${clean//❌/}"
+    clean="${clean//📥/}"
+    clean="${clean//🔄/}"
+    clean="${clean//📊/}"
+    clean="${clean//🧹/}"
+    clean="${clean//🩺/}"
+    clean="${clean//👋/}"
+    clean="${clean//🎉/}"
+    clean="${clean//📄/}"
+    clean="${clean//📱/}"
+    clean="${clean//🌐/}"
+    clean="${clean//🎬/}"
+    clean="${clean//🌍/}"
+    clean="${clean//🌙/}"
+    clean="${clean//🔤/}"
+    clean="${clean//🔍/}"
+    clean="${clean//📋/}"
+    clean="${clean//📤/}"
+    clean="${clean//💿/}"
+    local len_after="${#clean}"
+    echo "$((len_before - len_after))"
+}
+
 _line() {
     echo "  +--------------------------------------+"
 }
@@ -13,12 +50,18 @@ _header() {
     clear 2>/dev/null || true
     echo ""
     _line
-    printf "  |  %-36s|\n" "$1"
+    local offset
+    offset=$(_emoji_offset "$1")
+    local pad=$((36 - offset))
+    printf "  |  %-${pad}s|\n" "$1"
     _line
 }
 
 _item() {
-    printf "  |  %s) %-33s|\n" "$1" "$2"
+    local offset
+    offset=$(_emoji_offset "$2")
+    local pad=$((33 - offset))
+    printf "  |  %s) %-${pad}s|\n" "$1" "$2"
 }
 
 _footer() {
@@ -41,7 +84,12 @@ banner() {
 ART
     echo ""
     _line
-    printf "  |  %-36s|\n" "$(t banner_title)"
+    local title
+    title="$(t banner_title)"
+    local offset
+    offset=$(_emoji_offset "$title")
+    local pad=$((36 - offset))
+    printf "  |  %-${pad}s|\n" "$title"
     _line
 
     # Mostrar status se tiver config carregada
@@ -295,7 +343,11 @@ full_install() {
 
     echo ""
     _line
-    printf "  |  %-36s|\n" "🎉 $(t install_complete)"
+    local success_msg="🎉 $(t install_complete)"
+    local offset
+    offset=$(_emoji_offset "$success_msg")
+    local pad=$((36 - offset))
+    printf "  |  %-${pad}s|\n" "$success_msg"
     _line
     echo ""
     echo "  🖥️  $(t install_desktop_label) : $DE_NAME"
