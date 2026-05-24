@@ -4,7 +4,7 @@
 
 choose_desktop() {
     echo ""
-    echo "  -- $(t desktop_title) --"
+    echo "  🖥️  -- $(t desktop_title) --"
     echo "   1) $(t desktop_xfce4)"
     echo "   2) $(t desktop_lxqt)"
     echo "   3) $(t desktop_mate)"
@@ -97,9 +97,9 @@ remove_desktop() {
 
 get_desktop_status() {
     if [ -n "$DE_NAME" ] && command_exists "$DE_COMMAND"; then
-        printf '%s [OK]' "$DE_NAME"
+        printf '%s ✅' "$DE_NAME"
     elif [ -n "$DE_NAME" ]; then
-        printf '%s [!]' "$DE_NAME"
+        printf '%s ⚠️' "$DE_NAME"
     else
         t status_not_installed
     fi
@@ -107,14 +107,13 @@ get_desktop_status() {
 
 desktop_menu() {
     while true; do
-        echo ""
-        _header "$(t desktop_config_title)"
+        _header "🖥️  $(t desktop_config_title)"
         printf "  |  %-36s|\n" "$(t desktop_current "$(get_desktop_status)")"
         _line
-        _item "1" "$(t desktop_change)"
-        _item "2" "$(t desktop_reinstall)"
-        _item "3" "$(t desktop_remove)"
-        _item "0" "$(t back)"
+        _item "1" "🔄 $(t desktop_change)"
+        _item "2" "📥 $(t desktop_reinstall)"
+        _item "3" "🗑️  $(t desktop_remove)"
+        _item "0" "↩️  $(t back)"
         _footer
         echo ""
 

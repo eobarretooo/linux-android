@@ -43,21 +43,20 @@ remove_wine() {
 
 get_wine_status() {
     if command_exists wine; then
-        t status_installed
+        printf '✅ %s' "$(t status_installed)"
     else
-        t status_not_installed
+        printf '❌ %s' "$(t status_not_installed)"
     fi
 }
 
 wine_menu() {
     while true; do
-        echo ""
-        _header "$(t wine_config_title)"
-        printf "  |  Wine: %-30s|\n" "$(get_wine_status)"
+        _header "🍷 $(t wine_config_title)"
+        printf "  |  🍷 Wine: %-27s|\n" "$(get_wine_status)"
         _line
-        _item "1" "$(t wine_install)"
-        _item "2" "$(t wine_remove)"
-        _item "0" "$(t back)"
+        _item "1" "📥 $(t wine_install)"
+        _item "2" "🗑️  $(t wine_remove)"
+        _item "0" "↩️  $(t back)"
         _footer
         echo ""
 

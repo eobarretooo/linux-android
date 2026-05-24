@@ -100,10 +100,11 @@ Ao selecionar "Instalacao Completa", o script faz tudo automaticamente:
 
 ### Passo 7: Iniciar o desktop
 
-Depois da instalacao, basta rodar:
+Depois da instalacao, basta rodar (de dentro da pasta do projeto):
 
 ```bash
-~/start-linux.sh
+cd ~/linux-android
+./start-linux.sh
 ```
 
 E abrir o app **Termux-X11** no seu celular para ver a interface grafica.
@@ -111,13 +112,13 @@ E abrir o app **Termux-X11** no seu celular para ver a interface grafica.
 Para parar:
 
 ```bash
-~/stop-linux.sh
+./stop-linux.sh
 ```
 
 Para ver o diagnostico:
 
 ```bash
-~/linux-info.sh
+./linux-info.sh
 ```
 
 ---
@@ -296,7 +297,13 @@ Estes apps ja funcionam ou tem potencial para funcionar bem no Termux com X11, e
 ```
 linux-android/
 |-- script-termux.sh          # Ponto de entrada principal
-|-- apps.conf                  # Catalogo de apps editavel
+|-- start-linux.sh            # Script de inicializacao (gerado)
+|-- stop-linux.sh             # Script de parada (gerado)
+|-- linux-info.sh             # Script de diagnostico (gerado)
+|-- apps.conf                 # Catalogo de apps editavel
+|-- logs/
+|   |-- install.log           # Log de instalacao
+|   |-- start.log             # Log de inicializacao
 |-- lang/
 |   |-- pt.sh                 # Strings em Portugues
 |   |-- en.sh                 # Strings em English

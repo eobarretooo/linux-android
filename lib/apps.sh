@@ -14,6 +14,15 @@ APP_CAT_KEYS[multimedia]="apps_multimedia"
 APP_CAT_KEYS[utilities]="apps_utilities"
 APP_CAT_KEYS[network]="apps_network"
 
+# Mapeia categoria -> emoji
+declare -gA APP_CAT_EMOJI
+APP_CAT_EMOJI[browsers]="🌐"
+APP_CAT_EMOJI[editors]="✏️ "
+APP_CAT_EMOJI[devtools]="⚙️ "
+APP_CAT_EMOJI[multimedia]="🎬"
+APP_CAT_EMOJI[utilities]="🛠️ "
+APP_CAT_EMOJI[network]="🌍"
+
 # Le apps de uma categoria do apps.conf
 # Retorna linhas no formato: nome_exibicao|pacote
 get_apps_in_category() {
@@ -42,9 +51,9 @@ list_category_apps() {
         local first_pkg=""
         first_pkg="$(echo "$pkg" | awk '{print $1}')"
         if is_pkg_installed "$first_pkg"; then
-            printf "   %s[x]%s %2d) %s\n" "$GREEN" "$RESET" "$index" "$name"
+            printf "   %s✅%s %2d) %s\n" "$GREEN" "$RESET" "$index" "$name"
         else
-            printf "   %s[ ]%s %2d) %s\n" "$DIM" "$RESET" "$index" "$name"
+            printf "   %s⬜%s %2d) %s\n" "$DIM" "$RESET" "$index" "$name"
         fi
         index=$((index + 1))
     done < <(get_apps_in_category "$category")
@@ -99,9 +108,11 @@ category_submenu() {
     local category="$1"
     local cat_name=""
     cat_name="$(t "${APP_CAT_KEYS[$category]}")"
+    local emoji="${APP_CAT_EMOJI[$category]:-📦}"
 
+    clear 2>/dev/null || true
     echo ""
-    echo "  -- $cat_name --"
+    echo "  ${emoji} -- $cat_name --"
     echo ""
     list_category_apps "$category"
     echo ""
@@ -117,19 +128,19 @@ category_submenu() {
 # Menu principal de aplicativos
 apps_menu() {
     while true; do
-        echo ""
-        _header "$(t apps_title)"
+        _header "📦 $(t apps_title)"
 
         local i=1
         for cat in "${APP_CATEGORIES[@]}"; do
             local cat_name=""
             cat_name="$(t "${APP_CAT_KEYS[$cat]}")"
-            _item "$i" "$cat_name"
+            local emoji="${APP_CAT_EMOJI[$cat]:-📦}"
+            _item "$i" "${emoji} $cat_name"
             i=$((i + 1))
         done
 
-        _item "7" "$(t apps_install_all)"
-        _item "0" "$(t back)"
+        _item "7" "📥 $(t apps_install_all)"
+        _item "0" "↩️  $(t back)"
         _footer
         echo ""
 
@@ -144,7 +155,7 @@ apps_menu() {
                 fi
             ;;
             7)
-                info "$(t apps_install_all)..."
+                info "📥 $(t apps_install_all)..."
                 for cat in "${APP_CATEGORIES[@]}"; do
                     install_category_app "$cat" "all"
                 done

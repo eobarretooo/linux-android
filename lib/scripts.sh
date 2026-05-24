@@ -3,7 +3,7 @@
 # Sourced by script-termux.sh — NÃO executar diretamente.
 
 write_start_script() {
-    cat > "${HOME}/start-linux.sh" <<EOF_START
+    cat > "${SCRIPT_DIR}/start-linux.sh" <<EOF_START
 #!/data/data/com.termux/files/usr/bin/bash
 set -Eeuo pipefail
 
@@ -24,18 +24,18 @@ export PULSE_SERVER=127.0.0.1
 EOF_START
 
     if [ "$GPU_ENABLED" = "true" ]; then
-        cat >> "${HOME}/start-linux.sh" <<'EOF_GPU'
+        cat >> "${SCRIPT_DIR}/start-linux.sh" <<'EOF_GPU'
 export GALLIUM_DRIVER=zink
 export MESA_LOADER_DRIVER_OVERRIDE=zink
 export MESA_NO_ERROR=1
 EOF_GPU
     else
-        cat >> "${HOME}/start-linux.sh" <<'EOF_GPU'
+        cat >> "${SCRIPT_DIR}/start-linux.sh" <<'EOF_GPU'
 export LIBGL_ALWAYS_SOFTWARE=1
 EOF_GPU
     fi
 
-    cat >> "${HOME}/start-linux.sh" <<EOF_START2
+    cat >> "${SCRIPT_DIR}/start-linux.sh" <<EOF_START2
 
 stop_old_sessions() {
     pkill -f "${DE_COMMAND}" 2>/dev/null || true
@@ -54,7 +54,7 @@ start_x11() {
     sleep 3
 }
 
-echo "Iniciando Termux Linux/X11..."
+echo "🚀 Iniciando Termux Linux/X11..."
 stop_old_sessions
 sleep 1
 start_audio
@@ -67,59 +67,64 @@ start_desktop() {
         exec dbus-launch --exit-with-session ${DE_COMMAND}
     fi
 
-    echo "Aviso: dbus-launch não encontrado. Iniciando ${DE_NAME} sem dbus-launch." >> "\$LOG"
+    echo "⚠️  Aviso: dbus-launch não encontrado. Iniciando ${DE_NAME} sem dbus-launch." >> "\$LOG"
     exec ${DE_COMMAND}
 }
 
 start_desktop
 EOF_START2
 
-    chmod +x "${HOME}/start-linux.sh"
+    chmod +x "${SCRIPT_DIR}/start-linux.sh"
 }
 
 write_stop_script() {
-    cat > "${HOME}/stop-linux.sh" <<'EOF_STOP'
+    cat > "${SCRIPT_DIR}/stop-linux.sh" <<'EOF_STOP'
 #!/data/data/com.termux/files/usr/bin/bash
 
 pkill -f "startxfce4|startlxqt|mate-session|startplasma-x11|xfce4-session|lxqt-session" 2>/dev/null || true
 pkill -f "termux-x11.*:0" 2>/dev/null || true
 pulseaudio --kill >/dev/null 2>&1 || true
 
-echo "Desktop finalizado."
+echo "⏹️  Desktop finalizado."
 EOF_STOP
 
-    chmod +x "${HOME}/stop-linux.sh"
+    chmod +x "${SCRIPT_DIR}/stop-linux.sh"
 }
 
 write_info_script() {
-    cat > "${HOME}/linux-info.sh" <<'EOF_INFO'
+    local log_path="$LOG"
+    local start_log_path="$START_LOG"
+    cat > "${SCRIPT_DIR}/linux-info.sh" <<EOF_INFO
 #!/data/data/com.termux/files/usr/bin/bash
 
-echo "===== Termux Linux/X11 - Diagnóstico ====="
-echo "Data: $(date)"
-echo "Arquitetura: $(uname -m)"
-echo "PREFIX: ${PREFIX:-desconhecido}"
-echo "DISPLAY: ${DISPLAY:-não definido}"
 echo ""
-echo "Comandos encontrados:"
+echo "===== 🩺 Termux Linux/X11 - Diagnóstico ====="
+echo ""
+echo "📅 Data: \$(date)"
+echo "🏗️  Arquitetura: \$(uname -m)"
+echo "📁 PREFIX: \${PREFIX:-desconhecido}"
+echo "🖥️  DISPLAY: \${DISPLAY:-não definido}"
+echo ""
+echo "🔍 Comandos encontrados:"
 for cmd in termux-x11 dbus-launch startxfce4 startlxqt mate-session startplasma-x11 pulseaudio; do
-    if command -v "$cmd" >/dev/null 2>&1; then
-        echo "  [OK] $cmd -> $(command -v "$cmd")"
+    if command -v "\$cmd" >/dev/null 2>&1; then
+        echo "  ✅ \$cmd -> \$(command -v "\$cmd")"
     else
-        echo "  - $cmd não encontrado"
+        echo "  ❌ \$cmd não encontrado"
     fi
 done
 
 echo ""
-echo "Últimas linhas do log de instalação:"
-tail -n 30 "$HOME/termux-linux-install.log" 2>/dev/null || true
+echo "📋 Últimas linhas do log de instalação:"
+tail -n 30 "${log_path}" 2>/dev/null || echo "  (log não encontrado)"
 
 echo ""
-echo "Últimas linhas do log de inicialização:"
-tail -n 30 "$HOME/termux-linux-start.log" 2>/dev/null || true
+echo "📋 Últimas linhas do log de inicialização:"
+tail -n 30 "${start_log_path}" 2>/dev/null || echo "  (log não encontrado)"
+echo ""
 EOF_INFO
 
-    chmod +x "${HOME}/linux-info.sh"
+    chmod +x "${SCRIPT_DIR}/linux-info.sh"
 }
 
 create_desktop_shortcuts() {

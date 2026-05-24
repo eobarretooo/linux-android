@@ -1,0 +1,10 @@
+# Logs de execução (gerados automaticamente)
+logs/
+
+# Scripts gerados pelo instalador
+start-linux.sh
+stop-linux.sh
+linux-info.sh
+
+# Anotações pessoais
+anotacao.txt

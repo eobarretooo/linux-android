@@ -17,12 +17,17 @@ backup_save() {
         cp "${STATE_DIR}/config.env" "$backup_path/"
     fi
 
-    # Salva scripts gerados
+    # Salva scripts gerados (agora dentro do projeto)
     for script in start-linux.sh stop-linux.sh linux-info.sh; do
-        if [ -f "${HOME}/${script}" ]; then
-            cp "${HOME}/${script}" "$backup_path/"
+        if [ -f "${SCRIPT_DIR}/${script}" ]; then
+            cp "${SCRIPT_DIR}/${script}" "$backup_path/"
         fi
     done
+
+    # Salva logs
+    if [ -d "${SCRIPT_DIR}/logs" ]; then
+        cp -r "${SCRIPT_DIR}/logs" "$backup_path/" 2>/dev/null || true
+    fi
 
     # Salva configurações de desktop (XFCE4)
     if [ -d "${HOME}/.config/xfce4" ]; then
@@ -43,8 +48,9 @@ backup_restore() {
         return 1
     fi
 
+    clear 2>/dev/null || true
     echo ""
-    echo "  $(t backup_list)"
+    echo "  📂 $(t backup_list)"
     echo ""
 
     local backups=()
@@ -56,7 +62,7 @@ backup_restore() {
             local name=""
             name="$(basename "$dir")"
             backups+=("$dir")
-            printf "   %d) %s\n" "$i" "$name"
+            printf "   %d) 📦 %s\n" "$i" "$name"
             i=$((i + 1))
         fi
     done
@@ -79,13 +85,18 @@ backup_restore() {
             load_config
         fi
 
-        # Restaura scripts
+        # Restaura scripts (para o diretório do projeto)
         for script in start-linux.sh stop-linux.sh linux-info.sh; do
             if [ -f "$selected/$script" ]; then
-                cp "$selected/$script" "${HOME}/"
-                chmod +x "${HOME}/${script}"
+                cp "$selected/$script" "${SCRIPT_DIR}/"
+                chmod +x "${SCRIPT_DIR}/${script}"
             fi
         done
+
+        # Restaura logs
+        if [ -d "$selected/logs" ]; then
+            cp -r "$selected/logs" "${SCRIPT_DIR}/" 2>/dev/null || true
+        fi
 
         # Restaura configs de desktop
         if [ -d "$selected/xfce4" ]; then
@@ -114,11 +125,10 @@ backup_export() {
     local export_file="${export_dir}/termux-linux-backup_${timestamp}.tar.gz"
 
     if [ -d "$STATE_DIR" ]; then
-        tar -czf "$export_file" -C "$HOME" \
-            ".termux-linux" \
-            "start-linux.sh" \
-            "stop-linux.sh" \
-            "linux-info.sh" \
+        # Inclui config, scripts e logs do projeto
+        tar -czf "$export_file" \
+            -C "$HOME" ".termux-linux" \
+            -C "$SCRIPT_DIR" "start-linux.sh" "stop-linux.sh" "linux-info.sh" "logs" \
             2>/dev/null || true
         ok "$(t backup_exported "$export_file")"
     else
@@ -128,12 +138,11 @@ backup_export() {
 
 backup_menu() {
     while true; do
-        echo ""
-        _header "$(t backup_title)"
-        _item "1" "$(t backup_save)"
-        _item "2" "$(t backup_restore)"
-        _item "3" "$(t backup_export)"
-        _item "0" "$(t back)"
+        _header "💾 $(t backup_title)"
+        _item "1" "📥 $(t backup_save)"
+        _item "2" "📤 $(t backup_restore)"
+        _item "3" "💿 $(t backup_export)"
+        _item "0" "↩️  $(t back)"
         _footer
         echo ""
 

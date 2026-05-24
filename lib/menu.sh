@@ -10,6 +10,8 @@ _line() {
 }
 
 _header() {
+    clear 2>/dev/null || true
+    echo ""
     _line
     printf "  |  %-36s|\n" "$1"
     _line
@@ -33,23 +35,25 @@ banner() {
  |    | |\ | |  | \_/
  |___ | | \| \__/ / \
 
-            __   __   __     __
-  /\  |\ | |  \ |__) /  \ | |  \
- /~~\ | \| |__/ |  \ \__/ | |__/
+             __   __   __     __
+   /\  |\ | |  \ |__) /  \ | |  \
+  /~~\ | \| |__/ |  \ \__/ | |__/
 ART
     echo ""
-    _header "$(t banner_title)"
+    _line
+    printf "  |  %-36s|\n" "$(t banner_title)"
+    _line
 
     # Mostrar status se tiver config carregada
     if [ -n "$DE_NAME" ] || [ "$GPU_ENABLED" = "true" ]; then
         echo ""
-        printf "  %s%-10s%s %s\n" "$DIM" "$(t banner_status_desktop):" "$RESET" "$(get_desktop_status)"
+        printf "  %s🖥️  %-9s%s %s\n" "$DIM" "$(t banner_status_desktop):" "$RESET" "$(get_desktop_status)"
         if [ "$GPU_ENABLED" = "true" ]; then
-            printf "  %s%-10s%s %s (%s)\n" "$DIM" "$(t banner_status_gpu):" "$RESET" "$GPU_DRIVER" "$(t status_enabled)"
+            printf "  %s🎮 %-9s%s %s (%s)\n" "$DIM" "$(t banner_status_gpu):" "$RESET" "$GPU_DRIVER" "$(t status_enabled)"
         else
-            printf "  %s%-10s%s software (%s)\n" "$DIM" "$(t banner_status_gpu):" "$RESET" "$(t status_disabled)"
+            printf "  %s🎮 %-9s%s software (%s)\n" "$DIM" "$(t banner_status_gpu):" "$RESET" "$(t status_disabled)"
         fi
-        printf "  %s%-10s%s %s\n" "$DIM" "$(t banner_status_wine):" "$RESET" "$(get_wine_status)"
+        printf "  %s🍷 %-9s%s %s\n" "$DIM" "$(t banner_status_wine):" "$RESET" "$(get_wine_status)"
     fi
 
     echo ""
@@ -60,12 +64,11 @@ ART
 # =========================
 audio_menu() {
     while true; do
-        echo ""
-        _header "$(t audio_title)"
-        _item "1" "$(t audio_install)"
-        _item "2" "$(t audio_restart)"
-        _item "3" "$(t audio_status)"
-        _item "0" "$(t back)"
+        _header "🔊 $(t audio_title)"
+        _item "1" "📥 $(t audio_install)"
+        _item "2" "🔄 $(t audio_restart)"
+        _item "3" "📊 $(t audio_status)"
+        _item "0" "↩️  $(t back)"
         _footer
         echo ""
 
@@ -101,6 +104,8 @@ audio_menu() {
 # GPU (submenu)
 # =========================
 gpu_menu() {
+    clear 2>/dev/null || true
+    echo ""
     choose_gpu
     install_gpu_drivers
     save_config
@@ -137,16 +142,15 @@ check_integrity() {
 
 maintenance_menu() {
     while true; do
-        echo ""
-        _header "$(t maint_title)"
-        _item "1" "$(t maint_update)"
-        _item "2" "$(t maint_check_integrity)"
-        _item "3" "$(t maint_view_install_log)"
-        _item "4" "$(t maint_view_start_log)"
-        _item "5" "$(t maint_clean_cache)"
-        _item "6" "$(t maint_recreate_scripts)"
-        _item "7" "$(t maint_diagnostics)"
-        _item "0" "$(t back)"
+        _header "🔧 $(t maint_title)"
+        _item "1" "📦 $(t maint_update)"
+        _item "2" "🔍 $(t maint_check_integrity)"
+        _item "3" "📋 $(t maint_view_install_log)"
+        _item "4" "📋 $(t maint_view_start_log)"
+        _item "5" "🧹 $(t maint_clean_cache)"
+        _item "6" "🔄 $(t maint_recreate_scripts)"
+        _item "7" "🩺 $(t maint_diagnostics)"
+        _item "0" "↩️  $(t back)"
         _footer
         echo ""
 
@@ -164,6 +168,8 @@ maintenance_menu() {
             3)
                 echo ""
                 if [ -s "$LOG" ]; then
+                    echo "  📋 $(t maint_view_install_log):"
+                    echo ""
                     tail -n 50 "$LOG" | sed 's/^/    /'
                 else
                     warn "Log vazio."
@@ -172,6 +178,8 @@ maintenance_menu() {
             4)
                 echo ""
                 if [ -s "$START_LOG" ]; then
+                    echo "  📋 $(t maint_view_start_log):"
+                    echo ""
                     tail -n 50 "$START_LOG" | sed 's/^/    /'
                 else
                     warn "Log vazio."
@@ -191,8 +199,8 @@ maintenance_menu() {
                 fi
             ;;
             7)
-                if [ -x "${HOME}/linux-info.sh" ]; then
-                    bash "${HOME}/linux-info.sh"
+                if [ -x "${SCRIPT_DIR}/linux-info.sh" ]; then
+                    bash "${SCRIPT_DIR}/linux-info.sh"
                 else
                     check_integrity
                 fi
@@ -220,7 +228,7 @@ full_install() {
 
     echo ""
     local wine_answer=""
-    wine_answer="$(read_yes_no "  $(t wine_install_prompt)" 'n')"
+    wine_answer="$(read_yes_no "  🍷 $(t wine_install_prompt)" 'n')"
     if [ "$wine_answer" = "y" ]; then
         INSTALL_WINE="y"
     fi
@@ -286,17 +294,19 @@ full_install() {
     fi
 
     echo ""
-    _header "$(t install_complete)"
+    _line
+    printf "  |  %-36s|\n" "🎉 $(t install_complete)"
+    _line
     echo ""
-    echo "  $(t install_desktop_label) : $DE_NAME"
-    echo "  $(t install_gpu_label)     : $GPU_DRIVER / enabled=$GPU_ENABLED"
+    echo "  🖥️  $(t install_desktop_label) : $DE_NAME"
+    echo "  🎮 $(t install_gpu_label)     : $GPU_DRIVER / enabled=$GPU_ENABLED"
     echo ""
-    echo "  $(t install_start_cmd) : ~/start-linux.sh"
-    echo "  $(t install_stop_cmd)   : ~/stop-linux.sh"
-    echo "  $(t install_info_cmd)    : ~/linux-info.sh"
-    echo "  $(t install_log_label)     : $LOG"
+    echo "  ▶️  $(t install_start_cmd) : ${SCRIPT_DIR}/start-linux.sh"
+    echo "  ⏹️  $(t install_stop_cmd)  : ${SCRIPT_DIR}/stop-linux.sh"
+    echo "  ℹ️  $(t install_info_cmd)  : ${SCRIPT_DIR}/linux-info.sh"
+    echo "  📄 $(t install_log_label)     : $LOG"
     echo ""
-    echo "  $(t install_open_x11)"
+    echo "  📱 $(t install_open_x11)"
     echo ""
 }
 
@@ -307,17 +317,19 @@ main_menu() {
     while true; do
         banner
 
-        _header "$(t menu_title)"
-        _item "1" "$(t menu_full_install)"
-        _item "2" "$(t menu_apps)"
-        _item "3" "$(t menu_desktop)"
-        _item "4" "$(t menu_gpu)"
-        _item "5" "$(t menu_audio)"
-        _item "6" "$(t menu_wine)"
-        _item "7" "$(t menu_themes)"
-        _item "8" "$(t menu_maintenance)"
-        _item "9" "$(t menu_backup)"
-        _item "0" "$(t menu_exit)"
+        _line
+        printf "  |  %-36s|\n" "$(t menu_title)"
+        _line
+        _item "1" "🚀 $(t menu_full_install)"
+        _item "2" "📦 $(t menu_apps)"
+        _item "3" "🖥️  $(t menu_desktop)"
+        _item "4" "🎮 $(t menu_gpu)"
+        _item "5" "🔊 $(t menu_audio)"
+        _item "6" "🍷 $(t menu_wine)"
+        _item "7" "🎨 $(t menu_themes)"
+        _item "8" "🔧 $(t menu_maintenance)"
+        _item "9" "💾 $(t menu_backup)"
+        _item "0" "❌ $(t menu_exit)"
         _footer
         echo ""
 
@@ -335,8 +347,9 @@ main_menu() {
             8) maintenance_menu ;;
             9) backup_menu ;;
             0)
+                clear 2>/dev/null || true
                 echo ""
-                echo "  $(t menu_goodbye)"
+                echo "  👋 $(t menu_goodbye)"
                 echo ""
                 exit 0
             ;;

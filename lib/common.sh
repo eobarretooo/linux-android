@@ -5,8 +5,10 @@
 # =========================
 # Configuração global
 # =========================
-LOG="${HOME}/termux-linux-install.log"
-START_LOG="${HOME}/termux-linux-start.log"
+LOG_DIR="${SCRIPT_DIR}/logs"
+mkdir -p "$LOG_DIR"
+LOG="${LOG_DIR}/install.log"
+START_LOG="${LOG_DIR}/start.log"
 STATE_DIR="${HOME}/.termux-linux"
 SPINNER_PID=""
 TOTAL=11
@@ -53,6 +55,41 @@ else
 fi
 
 # =========================
+# Rotação de log
+# =========================
+rotate_log() {
+    local logfile="$1"
+    local max_size=512000  # 500KB
+    local max_backups=5
+
+    if [ ! -f "$logfile" ]; then
+        return 0
+    fi
+
+    local size=0
+    size="$(wc -c < "$logfile" 2>/dev/null || echo 0)"
+
+    if [ "$size" -gt "$max_size" ]; then
+        local i=$max_backups
+        while [ "$i" -gt 1 ]; do
+            local prev=$((i - 1))
+            if [ -f "${logfile}.${prev}" ]; then
+                mv "${logfile}.${prev}" "${logfile}.${i}"
+            fi
+            i=$((i - 1))
+        done
+        mv "$logfile" "${logfile}.1"
+        : > "$logfile"
+    fi
+
+    return 0
+}
+
+# Rotaciona logs na inicialização
+rotate_log "$LOG"
+rotate_log "$START_LOG"
+
+# =========================
 # Logging
 # =========================
 log_line() {
@@ -60,24 +97,24 @@ log_line() {
 }
 
 info() {
-    printf "  %s->%s %s\n" "$BLUE" "$RESET" "$*"
+    printf "  %s💡 ->%s %s\n" "$BLUE" "$RESET" "$*"
     log_line "INFO: $*"
 }
 
 ok() {
-    printf "  %s[OK]%s %s\n" "$GREEN" "$RESET" "$*"
+    printf "  %s✅ [OK]%s %s\n" "$GREEN" "$RESET" "$*"
     log_line "OK: $*"
 }
 
 warn() {
-    printf "  %s[!]%s %s\n" "$YELLOW" "$RESET" "$*"
+    printf "  %s⚠️  [!]%s %s\n" "$YELLOW" "$RESET" "$*"
     log_line "AVISO: $*"
 }
 
 show_log_tail() {
     if [ -s "$LOG" ]; then
         echo ""
-        echo "  $(t last_log_lines)"
+        echo "  📋 $(t last_log_lines)"
         tail -n 25 "$LOG" | sed 's/^/    /'
     fi
 }
@@ -85,8 +122,8 @@ show_log_tail() {
 die() {
     _stop_spinner
     echo ""
-    printf "  %s%s:%s %s\n" "$RED" "$(t error_prefix)" "$RESET" "$*" >&2
-    printf "  %s\n" "$(t log_complete "$LOG")" >&2
+    printf "  %s❌ %s:%s %s\n" "$RED" "$(t error_prefix)" "$RESET" "$*" >&2
+    printf "  📄 %s\n" "$(t log_complete "$LOG")" >&2
     show_log_tail >&2
     exit 1
 }
@@ -96,8 +133,8 @@ on_error() {
     local cmd="$2"
     _stop_spinner
     echo ""
-    printf "  %s%s%s\n" "$RED" "$(t unexpected_error_line "$line" "$cmd")" "$RESET" >&2
-    printf "  %s\n" "$(t log_complete "$LOG")" >&2
+    printf "  %s💥 %s%s\n" "$RED" "$(t unexpected_error_line "$line" "$cmd")" "$RESET" >&2
+    printf "  📄 %s\n" "$(t log_complete "$LOG")" >&2
     show_log_tail >&2
     exit 1
 }
@@ -135,7 +172,7 @@ start_step() {
     fi
 
     echo ""
-    printf "  %s[%02d/%02d]%s %s\n" "$BOLD" "$CURRENT" "$TOTAL" "$RESET" "$msg"
+    printf "  %s🔧 [%02d/%02d]%s %s\n" "$BOLD" "$CURRENT" "$TOTAL" "$RESET" "$msg"
     log_line "PASSO $CURRENT/$TOTAL: $msg"
 
     (

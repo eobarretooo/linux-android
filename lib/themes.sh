@@ -3,8 +3,9 @@
 # Sourced by script-termux.sh — NÃO executar diretamente.
 
 install_dark_theme() {
+    clear 2>/dev/null || true
     echo ""
-    echo "  -- $(t themes_dark) --"
+    echo "  🎨 -- $(t themes_dark) --"
     echo "   1) $(t themes_arc_dark)"
     echo "   2) $(t themes_gruvbox)"
     echo ""
@@ -33,8 +34,9 @@ install_dark_theme() {
 }
 
 install_icon_pack() {
+    clear 2>/dev/null || true
     echo ""
-    echo "  -- $(t themes_icons) --"
+    echo "  🖼️  -- $(t themes_icons) --"
     echo "   1) $(t themes_papirus)"
     echo "   2) $(t themes_adwaita)"
     echo ""
@@ -61,7 +63,7 @@ install_icon_pack() {
 }
 
 install_fonts() {
-    info "$(t themes_fonts)..."
+    info "🔤 $(t themes_fonts)..."
     install_optional_packages \
         fontconfig \
         font-dejavu \
@@ -78,7 +80,7 @@ install_fonts() {
 
 set_wallpaper() {
     local wallpaper_path=""
-    read -r -p "  $(t themes_wallpaper_path)" wallpaper_path || return
+    read -r -p "  🖼️  $(t themes_wallpaper_path)" wallpaper_path || return
 
     if [ -z "$wallpaper_path" ]; then
         return
@@ -106,13 +108,12 @@ set_wallpaper() {
 
 themes_menu() {
     while true; do
-        echo ""
-        _header "$(t themes_title)"
-        _item "1" "$(t themes_dark)"
-        _item "2" "$(t themes_icons)"
-        _item "3" "$(t themes_wallpaper)"
-        _item "4" "$(t themes_fonts)"
-        _item "0" "$(t back)"
+        _header "🎨 $(t themes_title)"
+        _item "1" "🌙 $(t themes_dark)"
+        _item "2" "🖼️  $(t themes_icons)"
+        _item "3" "🏞️  $(t themes_wallpaper)"
+        _item "4" "🔤 $(t themes_fonts)"
+        _item "0" "↩️  $(t back)"
         _footer
         echo ""
 

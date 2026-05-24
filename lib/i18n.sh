@@ -39,10 +39,13 @@ load_language() {
 }
 
 choose_language() {
+    clear 2>/dev/null || true
     echo ""
-    _header "Idioma / Language"
-    _item "1" "Portugues"
-    _item "2" "English"
+    _line
+    printf "  |  %-36s|\n" "🌐 Idioma / Language"
+    _line
+    _item "1" "🇧🇷 Português"
+    _item "2" "🇺🇸 English"
     _footer
     echo ""
 
